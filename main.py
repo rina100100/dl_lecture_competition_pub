@@ -132,6 +132,7 @@ class VQADataset(torch.utils.data.Dataset):
         image = self.transform(image)
         question = np.zeros(len(self.idx2question) + 1)  # 未知語用の要素を追加
         question_words = self.df["question"][idx].split(" ")
+        question_text = process_text(self.df["question"][idx])  # 質問文の前処理を適用
         for word in question_words:
             try:
                 question[self.question2idx[word]] = 1  # one-hot表現に変換
@@ -365,9 +366,22 @@ def main():
 
     # dataloader / model
     transform = transforms.Compose([
+        transforms.RandomCrop(32, padding=(4, 4, 4, 4), padding_mode='constant'),
         transforms.Resize((224, 224)),
+        transforms.RandomHorizontalFlip(),
+        transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.2),
         transforms.ToTensor()
     ])
+
+    #transform = transforms.Compose([
+    #transforms.RandomCrop(32, padding=(4, 4, 4, 4), padding_mode='constant'),
+    #transforms.RandomResizedCrop(224),
+    #transforms.RandomHorizontalFlip(),
+    #transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.2),
+    #transforms.ToTensor(),
+    #transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+#])
+
     train_dataset = VQADataset(df_path="./data/train.json", image_dir="./data/train", transform=transform)
     test_dataset = VQADataset(df_path="./data/valid.json", image_dir="./data/valid", transform=transform, answer=False)
     test_dataset.update_dict(train_dataset)
