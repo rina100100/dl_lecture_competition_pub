@@ -366,21 +366,11 @@ def main():
 
     # dataloader / model
     transform = transforms.Compose([
-        #transforms.RandomCrop(32, padding=(4, 4, 4, 4), padding_mode='constant'),
-        #transforms.RandomResizedCrop(224),
-        transforms.RandomHorizontalFlip(),
-        transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.2),
-        transforms.ToTensor()
+    transforms.RandomResizedCrop(224),
+    transforms.RandomHorizontalFlip(),
+    transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.2),
+    transforms.ToTensor(),
     ])
-
-    #transform = transforms.Compose([
-    #transforms.RandomCrop(32, padding=(4, 4, 4, 4), padding_mode='constant'),
-    #transforms.RandomResizedCrop(224),
-    #transforms.RandomHorizontalFlip(),
-    #transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.2),
-    #transforms.ToTensor(),
-    #transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-#])
 
     train_dataset = VQADataset(df_path="./data/train.json", image_dir="./data/train", transform=transform)
     test_dataset = VQADataset(df_path="./data/valid.json", image_dir="./data/valid", transform=transform, answer=False)
@@ -392,7 +382,7 @@ def main():
     model = VQAModel(vocab_size=len(train_dataset.question2idx)+1, n_answer=len(train_dataset.answer2idx)).to(device)
 
     # optimizer / criterion
-    num_epoch = 10
+    num_epoch = 3
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-5)
 
